@@ -5,7 +5,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 import time
-import os
 
 app = Flask(__name__)
 CORS(app)
@@ -27,13 +26,11 @@ def invite():
         options.add_argument("--headless")  
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-
-        # Use a unique user data directory to avoid conflicts
-        unique_dir = f"/tmp/chrome_user_data_{os.getpid()}"
-        options.add_argument(f"--user-data-dir={unique_dir}")
+        options.add_argument("--remote-debugging-port=9222")  # Fix for Chrome crashes
 
         # Start ChromeDriver
-        driver = webdriver.Chrome(service=Service(), options=options)
+        service = Service()
+        driver = webdriver.Chrome(service=service, options=options)
 
         driver.get("https://accounts.google.com/signin")
         time.sleep(2)
