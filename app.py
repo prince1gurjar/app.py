@@ -4,6 +4,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
+from selenium.webdriver.chrome.service import Service
+import os
+
 
 app = Flask(__name__)
 CORS(app)
@@ -51,3 +54,13 @@ def invite():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000, debug=True)
+    options = webdriver.ChromeOptions()
+options.add_argument("--headless")  
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+
+# Use a unique user data directory to avoid conflicts
+unique_dir = f"/tmp/chrome_user_data_{os.getpid()}"
+options.add_argument(f"--user-data-dir={unique_dir}")
+
+driver = webdriver.Chrome(service=Service(), options=options)
