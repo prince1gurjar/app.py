@@ -22,27 +22,21 @@ def invite():
         password = data.get("password")
         invite_emails = data.get("inviteEmails").split("\n")
 
-        # ✅ Use absolute path for Chrome & ChromeDriver
+        # ✅ Define Chrome & ChromeDriver Paths (This Fixes the Issue)
         CHROME_PATH = "/usr/bin/google-chrome"
-        CHROMEDRIVER_PATH = "/usr/bin/chromedriver"
+        CHROMEDRIVER_PATH = "/usr/lib/chromium-browser/chromedriver"
 
-        # ✅ Configure Chrome Options (Render-friendly)
         options = webdriver.ChromeOptions()
-        options.binary_location = CHROME_PATH  # Set the Chrome binary path
-        options.add_argument("--headless")  # Run Chrome in headless mode
+        options.binary_location = CHROME_PATH  # Set Chrome binary path
+        options.add_argument("--headless")  # Run in headless mode
         options.add_argument("--no-sandbox")  # Bypass OS security model
         options.add_argument("--disable-dev-shm-usage")  # Fix resource issues
         options.add_argument("--disable-gpu")  # Prevent GPU issues
         options.add_argument("--disable-software-rasterizer")  
-        options.add_argument("--disable-extensions")  # Prevent Chrome extensions
-        options.add_argument("--window-size=1920x1080")  # Prevents UI issues
+        options.add_argument("--disable-extensions")  
+        options.add_argument("--window-size=1920x1080")
 
-        # ✅ Ensure a clean Chrome session (avoid conflicts)
-        temp_dir = f"/tmp/chrome_session_{os.getpid()}"
-        os.makedirs(temp_dir, exist_ok=True)
-        options.add_argument(f"--user-data-dir={temp_dir}")
-
-        # ✅ Start ChromeDriver with service
+        # ✅ Use ChromeDriver with Explicit Path
         service = Service(CHROMEDRIVER_PATH)
         driver = webdriver.Chrome(service=service, options=options)
 
@@ -73,4 +67,4 @@ def invite():
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000, debug=True)
+    app.run(host='0.0.0.0'
