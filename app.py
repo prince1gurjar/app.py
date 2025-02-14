@@ -21,7 +21,7 @@ def invite():
         password = data.get("password")
         invite_emails = data.get("inviteEmails").split("\n")
 
-        # ✅ Define Chrome & ChromeDriver Paths
+        # ✅ Define Chrome & ChromeDriver Paths (Fix for Render)
         CHROME_PATH = "/usr/bin/google-chrome"
         CHROMEDRIVER_PATH = "/usr/lib/chromium-browser/chromedriver"
 
@@ -65,6 +65,5 @@ def invite():
     except Exception as e:
         return jsonify({"error": str(e)})
 
-# ✅ **Fixed the Syntax Error: Closing Parenthesis Added**
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000, debug=True)  # <-- ✅ Closing parenthesis was missing
+    app.run(host='0.0.0.0', port=10000, debug=True)
