@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 import time
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -21,17 +22,31 @@ def invite():
         password = data.get("password")
         invite_emails = data.get("inviteEmails").split("\n")
 
-        # Configure Chrome Options
-        options = webdriver.ChromeOptions()
-        options.add_argument("--headless")  
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--remote-debugging-port=9222")  # Fix for Chrome crashes
+        # ✅ Use absolute path for Chrome & ChromeDriver
+        CHROME_PATH = "/usr/bin/google-chrome"
+        CHROMEDRIVER_PATH = "/usr/bin/chromedriver"
 
-        # Start ChromeDriver
-        service = Service()
+        # ✅ Configure Chrome Options (Render-friendly)
+        options = webdriver.ChromeOptions()
+        options.binary_location = CHROME_PATH  # Set the Chrome binary path
+        options.add_argument("--headless")  # Run Chrome in headless mode
+        options.add_argument("--no-sandbox")  # Bypass OS security model
+        options.add_argument("--disable-dev-shm-usage")  # Fix resource issues
+        options.add_argument("--disable-gpu")  # Prevent GPU issues
+        options.add_argument("--disable-software-rasterizer")  
+        options.add_argument("--disable-extensions")  # Prevent Chrome extensions
+        options.add_argument("--window-size=1920x1080")  # Prevents UI issues
+
+        # ✅ Ensure a clean Chrome session (avoid conflicts)
+        temp_dir = f"/tmp/chrome_session_{os.getpid()}"
+        os.makedirs(temp_dir, exist_ok=True)
+        options.add_argument(f"--user-data-dir={temp_dir}")
+
+        # ✅ Start ChromeDriver with service
+        service = Service(CHROMEDRIVER_PATH)
         driver = webdriver.Chrome(service=service, options=options)
 
+        # ✅ Login to Gmail
         driver.get("https://accounts.google.com/signin")
         time.sleep(2)
 
@@ -40,9 +55,11 @@ def invite():
         driver.find_element(By.NAME, "password").send_keys(password + Keys.RETURN)
         time.sleep(5)
 
+        # ✅ Open YouTube Family Page
         driver.get("https://www.youtube.com/family")
         time.sleep(5)
 
+        # ✅ Send Invitations
         for invite_email in invite_emails:
             driver.find_element(By.XPATH, "//input[@type='email']").send_keys(invite_email.strip())
             time.sleep(1)
